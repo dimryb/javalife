@@ -21,37 +21,49 @@ import kotlin.math.min
 class SimpleGame : JPanel(), ActionListener, KeyListener {
     private var lulz = 0
     private var display = 0
+
     @JvmField
     var daynight = 2f //смена дня и ночи
     private var time = false
+
     @JvmField
     var dsize = 0.6f //движение и увеличение дисплея
+
     @JvmField
     var dx = 0
+
     @JvmField
     var mouseclickx = 0
+
     @JvmField
     var mouseclicky = 0
+
     @JvmField
     var dy = 0
+
     @JvmField
     var selectgenom = Array(10) { IntArray(6) }
+
     @JvmField
     var maxid = 101
 
     val widthMap = 320
     val heightMap = 320
-    private val noise = PerlinNoise(widthMap, heightMap)
+
     private val timer // Таймер для обновления экрана
             : Timer
+
     @JvmField
     var cells = HashMap<String, Cell>() //список клеток
-    @JvmField
-    var worldmap = Array(widthMap) { FloatArray(heightMap) }
+
+    //@JvmField
+    //var worldmap = Array(widthMap) { FloatArray(heightMap) }
     @JvmField
     var cellmap = Array(widthMap) { IntArray(heightMap) } //карты
     var foodmap = Array(widthMap) { Array(heightMap) { IntArray(2) } }
     private val rand = Random()
+
+    val world = World(widthMap, heightMap)
 
     init {
         addMouseListener(MouseListen(this))
@@ -67,7 +79,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         for (i in 0 until widthMap) { //рисуем еду
             for (j in 0 until heightMap) {
                 var green = 0
-                when (Math.round(worldmap[i][j])) {
+                when (Math.round(world.heightInMap(i, j))) {
                     -1 -> green = 0
                     0 -> green = 63
                     1 -> green = 127
@@ -453,7 +465,8 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                 if (cellmap[nextpos[0]][nextpos[1]] == 0) {
                     cellmap[cell.x][cell.y] = 0
                     cellmap[nextpos[0]][nextpos[1]] = cell.id
-                    if (worldmap[cell.x][cell.y] != worldmap[nextpos[0]][nextpos[1]]) {
+
+                    if (world.heightInMap(cell.x, cell.y) != (world.heightInMap(nextpos[0], nextpos[1]))) {
                         cell.lifetime /= 2
                     }
                     cell.x = nextpos[0]
@@ -473,9 +486,12 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
             }
             if (cell.CanGrow() && cell.energy >= 3) { //клетка делится
                 val ncell = cell.Mitoz()
-                if (cellmap[ncell.x][ncell.y] == 0 && (worldmap[cell.x][cell.y] == worldmap[ncell.x][ncell.y] || rand.nextInt(
+                if (cellmap[ncell.x][ncell.y] == 0 && (world.heightInMap(cell.x, cell.y) == world.heightInMap(
+                        ncell.x,
+                        ncell.y
+                    ) || rand.nextInt(
                         10
-                    ) == 0) && worldmap[ncell.x][ncell.y] != -1f && worldmap[ncell.x][ncell.y] != 3f
+                    ) == 0) && world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f
                 ) { //переход границы биомов карается
                     cells1[maxid.toString()] = ncell
                     cellmap[ncell.x][ncell.y] = ncell.id
@@ -526,14 +542,14 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     private fun generateMap(width: Int, height: Int) {
         generateFoodMap(width, height)
-        generateHeightMap(width, height)
+        world.generateHeightMap(width, height)
         generateSeedsMap(width, height)
     }
 
     private fun generateSeedsMap(width: Int, height: Int) {
         for (i in 0..99) { //генерируем семена
             val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
-            if (worldmap[ncell.x][ncell.y] != -1f && worldmap[ncell.x][ncell.y] != 3f) {
+            if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
                 ncell.parent_id = i
                 ncell.world = this
                 ncell.id = i + 1
@@ -543,24 +559,6 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         }
     }
 
-    private fun generateHeightMap(width: Int, height: Int) {
-        for (i in 0 until width) { //генерируем карту высот
-            for (j in 0 until height) {
-                worldmap[i][j] = noise.getValue(i, j)
-                if (worldmap[i][j] < 0.2) {
-                    worldmap[i][j] = -1f
-                } else if (worldmap[i][j] < 0.4) {
-                    worldmap[i][j] = 0f
-                } else if (worldmap[i][j] < 0.6) {
-                    worldmap[i][j] = 1f
-                } else if (worldmap[i][j] < 0.8) {
-                    worldmap[i][j] = 2f
-                } else {
-                    worldmap[i][j] = 3f
-                }
-            }
-        }
-    }
 
     private fun generateFoodMap(width: Int, height: Int) {
         for (i in 0 until width) { //генерируем карту еды
@@ -647,7 +645,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     fun createCell() {
         val ncell = Cell(mouseclickx, mouseclicky, rand.nextFloat(40f, 50f), 0)
         ncell.genom = selectgenom
-        if (worldmap[ncell.x][ncell.y] != -1f && worldmap[ncell.x][ncell.y] != 3f) {
+        if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
             ncell.parent_id = maxid
             ncell.world = this
             ncell.id = maxid

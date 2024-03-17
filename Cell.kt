@@ -161,17 +161,18 @@ class Cell(//координаты
     }
 
     fun Eat(pos: IntArray): IntArray { //кушац
+        val height = world!!.world.heightInMap(x, y)
         when (type) {
             0 -> {
                 if (pos[0] > 0) {
                     pos[0] -= 1
-                    if (world!!.worldmap[x][y] == 0f) {
+                    if (height == 0f) {
                         energy += 2.25.toFloat()
                     }
-                    if (world!!.worldmap[x][y] == 1f) {
+                    if (height == 1f) {
                         energy += 2f
                     }
-                    if (world!!.worldmap[x][y] == 2f) {
+                    if (height == 2f) {
                         energy += 1.75.toFloat()
                     }
                     energy += 2f
@@ -182,13 +183,13 @@ class Cell(//координаты
             1 -> {
                 if (pos[1] > 0) {
                     pos[1] -= 1
-                    if (world!!.worldmap[x][y] == 0f) {
+                    if (height == 0f) {
                         energy += 2.25.toFloat()
                     }
-                    if (world!!.worldmap[x][y] == 1f) {
+                    if (height == 1f) {
                         energy += 2f
                     }
-                    if (world!!.worldmap[x][y] == 2f) {
+                    if (height == 2f) {
                         energy += 1.75.toFloat()
                     }
                 }
@@ -196,13 +197,13 @@ class Cell(//координаты
             }
 
             2 -> {
-                if (world!!.worldmap[x][y] == 0f) {
+                if (height == 0f) {
                     energy += (world!!.daynight - 0.1).toFloat()
                 }
-                if (world!!.worldmap[x][y] == 1f) {
+                if (height == 1f) {
                     energy += world!!.daynight
                 }
-                if (world!!.worldmap[x][y] == 2f) {
+                if (height == 2f) {
                     energy += (world!!.daynight + 0.1).toFloat()
                 }
                 return pos
