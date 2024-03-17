@@ -22,29 +22,21 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     private var lulz = 0
     private var display = 0
 
-    @JvmField
     var daynight = 2f //смена дня и ночи
     private var time = false
 
-    @JvmField
     var dsize = 0.6f //движение и увеличение дисплея
 
-    @JvmField
     var dx = 0
 
-    @JvmField
     var mouseclickx = 0
 
-    @JvmField
     var mouseclicky = 0
 
-    @JvmField
     var dy = 0
 
-    @JvmField
     var selectgenom = Array(10) { IntArray(6) }
 
-    @JvmField
     var maxid = 101
 
     val widthMap = 320
@@ -53,12 +45,8 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     private val timer // Таймер для обновления экрана
             : Timer
 
-    @JvmField
     var cells = HashMap<String, Cell>() //список клеток
 
-    //@JvmField
-    //var worldmap = Array(widthMap) { FloatArray(heightMap) }
-    @JvmField
     var cellmap = Array(widthMap) { IntArray(heightMap) } //карты
     var foodmap = Array(widthMap) { Array(heightMap) { IntArray(2) } }
     private val rand = Random()

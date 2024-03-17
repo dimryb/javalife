@@ -14,9 +14,7 @@ class Cell(//координаты
     var id = 0
     var lifetime = 200
     var type = 3 //тип клетки 0-корень 1-антенна 2 - лист, 3 - семачка
-    @JvmField
-    var genom //генокод
-            : Array<IntArray>
+    var genom: Array<IntArray> //генокод
     var relations = ArrayList<String>()
     var active_gen: Int
     private val rand = Random() //ГПСЧ
