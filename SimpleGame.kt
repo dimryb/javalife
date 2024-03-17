@@ -21,36 +21,21 @@ import kotlin.math.min
 class SimpleGame : JPanel(), ActionListener, KeyListener {
     private var lulz = 0
     private var display = 0
-
     var daynight = 2f //смена дня и ночи
     private var time = false
-
     var dsize = 0.6f //движение и увеличение дисплея
-
     var dx = 0
-
     var mouseclickx = 0
-
     var mouseclicky = 0
-
     var dy = 0
-
     var selectgenom = Array(10) { IntArray(6) }
-
     var maxid = 101
-
     val widthMap = 320
     val heightMap = 320
-
-    private val timer // Таймер для обновления экрана
-            : Timer
-
+    private val timer: Timer // Таймер для обновления экрана
     var cells = HashMap<String, Cell>() //список клеток
-
     var cellmap = Array(widthMap) { IntArray(heightMap) } //карты
-    var foodmap = Array(widthMap) { Array(heightMap) { IntArray(2) } }
     private val rand = Random()
-
     val world = World(widthMap, heightMap)
 
     init {
@@ -74,7 +59,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                     2 -> green = 191
                     3 -> green = 255
                 }
-                g.color = Color(foodmap[i][j][0], green, foodmap[i][j][1])
+                g.color = Color(world.food.inMap(i, j, 0), green, world.food.inMap(i, j, 1))
                 g.fillRect(
                     Math.round((i * 5 + dx) * dsize),
                     Math.round((j * 5 + dy) * dsize),
@@ -372,7 +357,8 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     override fun actionPerformed(e: ActionEvent) {
         if (lulz == 0) {
-            generateMap(widthMap, heightMap)
+            world.generateMap()
+            generateSeedsMap(widthMap, heightMap)
         }
         lulz += 1
         if (time) { //цикл дня и ночи
@@ -405,9 +391,12 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
             cell.lifetime -= 1
             if (cell.type != 3) { //не для семечек
                 cell.energy -= 1f
-                if ((foodmap[cell.x][cell.y][0] >= 200 || foodmap[cell.x][cell.y][1] >= 200) && cell.type != 0 && cell.type != 1) //клетку дамажит плохая земля
+                if ((world.food.inMap(cell.x, cell.y, 0) >= 200 || world.food.inMap(
+                        cell.x, cell.y, 1
+                    ) >= 200) && cell.type != 0 && cell.type != 1
+                ) //клетку дамажит плохая земля
                 {
-                    cell.lifetime -= foodmap[cell.x][cell.y][0] / 10
+                    cell.lifetime -= world.food.inMap(cell.x, cell.y, 0) / 10
                     cell.energy -= 5f
                 }
                 if (cell.type == 4) { //хищник
@@ -446,7 +435,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                         }
                     }
                 } else {
-                    foodmap[cell.x][cell.y] = cell.Eat(foodmap[cell.x][cell.y]) //клетка кушает всегда
+                    world.food.set(cell.x, cell.y, cell.Eat(world.food.inMap(cell.x, cell.y)))  //клетка кушает всегда
                 }
             } else { //семечки летают
                 val nextpos = cell.Move()
@@ -475,8 +464,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
             if (cell.CanGrow() && cell.energy >= 3) { //клетка делится
                 val ncell = cell.Mitoz()
                 if (cellmap[ncell.x][ncell.y] == 0 && (world.heightInMap(cell.x, cell.y) == world.heightInMap(
-                        ncell.x,
-                        ncell.y
+                        ncell.x, ncell.y
                     ) || rand.nextInt(
                         10
                     ) == 0) && world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f
@@ -499,10 +487,12 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
             }
             if (cell.energy <= 0 || cell.lifetime <= 0) { //клетка сдохла
                 if (cell.energy > 0) {
-                    foodmap[cell.x][cell.y][0] = (foodmap[cell.x][cell.y][0] + cell.energy / 2).toInt() //трупик
-                    foodmap[cell.x][cell.y][1] = (foodmap[cell.x][cell.y][1] + cell.energy / 2).toInt()
-                    foodmap[cell.x][cell.y][0] = min(foodmap[cell.x][cell.y][0], 255)
-                    foodmap[cell.x][cell.y][1] = min(foodmap[cell.x][cell.y][1], 255)
+                    world.food.set(
+                        cell.x, cell.y, 0, (world.food.inMap(cell.x, cell.y, 0) + cell.energy / 2).toInt()
+                    )//трупик
+                    world.food.set(cell.x, cell.y, 1, (world.food.inMap(cell.x, cell.y, 1) + cell.energy / 2).toInt())
+                    world.food.set(cell.x, cell.y, 0, min(world.food.inMap(cell.x, cell.y, 0), 255))
+                    world.food.set(cell.x, cell.y, 1, min(world.food.inMap(cell.x, cell.y, 1), 255))
                 }
                 cells1.remove(cell.id.toString())
             }
@@ -528,12 +518,6 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         repaint() // Перерисовываем экран
     }
 
-    private fun generateMap(width: Int, height: Int) {
-        generateFoodMap(width, height)
-        world.generateHeightMap()
-        generateSeedsMap(width, height)
-    }
-
     private fun generateSeedsMap(width: Int, height: Int) {
         for (i in 0..99) { //генерируем семена
             val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
@@ -547,15 +531,6 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         }
     }
 
-
-    private fun generateFoodMap(width: Int, height: Int) {
-        for (i in 0 until width) { //генерируем карту еды
-            for (j in 0 until height) {
-                foodmap[i][j][0] = rand.nextInt(10)
-                foodmap[i][j][1] = rand.nextInt(10)
-            }
-        }
-    }
 
     override fun keyTyped(e: KeyEvent) {}
     override fun keyPressed(e: KeyEvent) {
