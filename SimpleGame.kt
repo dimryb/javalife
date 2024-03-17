@@ -542,7 +542,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     private fun generateMap(width: Int, height: Int) {
         generateFoodMap(width, height)
-        world.generateHeightMap(width, height)
+        world.generateHeightMap()
         generateSeedsMap(width, height)
     }
 
