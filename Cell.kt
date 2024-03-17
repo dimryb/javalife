@@ -56,8 +56,8 @@ class Cell(//координаты
     }
 
     fun Move(): IntArray { //движение
-        val width = world!!.width
-        val height = world!!.height
+        val width = world!!.widthMap
+        val height = world!!.heightMap
         return if (rand.nextInt(2) == 0) {
             var nx = x + rand.nextInt(-1, 2)
             if (nx == -1) {
@@ -103,8 +103,8 @@ class Cell(//координаты
         if (genom[active_gen][0] == 3 && type == 3) {
             genom[active_gen][0] = 2
         }
-        val width = world!!.width
-        val height = world!!.height
+        val width = world!!.widthMap
+        val height = world!!.heightMap
         val maxid = world!!.maxid
         val pos = arrayOf(intArrayOf(0, 1), intArrayOf(0, -1), intArrayOf(1, 0), intArrayOf(-1, 0))
         var nx = x + pos[genom[active_gen][3]][0]

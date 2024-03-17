@@ -38,20 +38,19 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     var selectgenom = Array(10) { IntArray(6) }
     @JvmField
     var maxid = 101
-    @JvmField
-    var width = 320
-    @JvmField
-    var height = 320
-    private val noise = PerlinNoise(width, height)
+
+    val widthMap = 320
+    val heightMap = 320
+    private val noise = PerlinNoise(widthMap, heightMap)
     private val timer // Таймер для обновления экрана
             : Timer
     @JvmField
     var cells = HashMap<String, Cell>() //список клеток
     @JvmField
-    var worldmap = Array(width) { FloatArray(height) }
+    var worldmap = Array(widthMap) { FloatArray(heightMap) }
     @JvmField
-    var cellmap = Array(width) { IntArray(height) } //карты
-    var foodmap = Array(width) { Array(height) { IntArray(2) } }
+    var cellmap = Array(widthMap) { IntArray(heightMap) } //карты
+    var foodmap = Array(widthMap) { Array(heightMap) { IntArray(2) } }
     private val rand = Random()
 
     init {
@@ -65,8 +64,8 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     public override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
-        for (i in 0 until width) { //рисуем еду
-            for (j in 0 until height) {
+        for (i in 0 until widthMap) { //рисуем еду
+            for (j in 0 until heightMap) {
                 var green = 0
                 when (Math.round(worldmap[i][j])) {
                     -1 -> green = 0
@@ -373,7 +372,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     override fun actionPerformed(e: ActionEvent) {
         if (lulz == 0) {
-            generateMap()
+            generateMap(widthMap, heightMap)
         }
         lulz += 1
         if (time) { //цикл дня и ночи
@@ -393,8 +392,8 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                 time = true
             }
         }
-        for (i in 0 until width) {
-            for (j in 0 until height) {
+        for (i in 0 until widthMap) {
+            for (j in 0 until heightMap) {
                 cellmap[i][j] = 0
             }
         }
@@ -423,17 +422,17 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                         intArrayOf(cell.x + 1, cell.y - 1)
                     )
                     for (pos in neigbors) {
-                        if (pos[0] == width) {
+                        if (pos[0] == widthMap) {
                             pos[0] = 0
                         }
                         if (pos[0] == -1) {
-                            pos[0] = width - 1
+                            pos[0] = widthMap - 1
                         }
-                        if (pos[1] == height) {
+                        if (pos[1] == heightMap) {
                             pos[1] = 0
                         }
                         if (pos[1] == -1) {
-                            pos[1] = height - 1
+                            pos[1] = heightMap - 1
                         }
                         if (cells1.keys.contains(cellmap[pos[0]][pos[1]].toString())) {
                             val food = cells1[cellmap[pos[0]][pos[1]].toString()]
@@ -525,13 +524,13 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         repaint() // Перерисовываем экран
     }
 
-    private fun generateMap() {
-        generateFoodMap()
-        generateHeightMap()
-        generateSeedsMap()
+    private fun generateMap(width: Int, height: Int) {
+        generateFoodMap(width, height)
+        generateHeightMap(width, height)
+        generateSeedsMap(width, height)
     }
 
-    private fun generateSeedsMap() {
+    private fun generateSeedsMap(width: Int, height: Int) {
         for (i in 0..99) { //генерируем семена
             val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
             if (worldmap[ncell.x][ncell.y] != -1f && worldmap[ncell.x][ncell.y] != 3f) {
@@ -544,7 +543,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         }
     }
 
-    private fun generateHeightMap() {
+    private fun generateHeightMap(width: Int, height: Int) {
         for (i in 0 until width) { //генерируем карту высот
             for (j in 0 until height) {
                 worldmap[i][j] = noise.getValue(i, j)
@@ -563,7 +562,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         }
     }
 
-    private fun generateFoodMap() {
+    private fun generateFoodMap(width: Int, height: Int) {
         for (i in 0 until width) { //генерируем карту еды
             for (j in 0 until height) {
                 foodmap[i][j][0] = rand.nextInt(10)
