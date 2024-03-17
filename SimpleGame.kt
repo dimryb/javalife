@@ -373,38 +373,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     override fun actionPerformed(e: ActionEvent) {
         if (lulz == 0) {
-            for (i in 0 until width) { //генерируем карту еды
-                for (j in 0 until height) {
-                    foodmap[i][j][0] = rand.nextInt(10)
-                    foodmap[i][j][1] = rand.nextInt(10)
-                }
-            }
-            for (i in 0 until width) { //генерируем карту высот
-                for (j in 0 until height) {
-                    worldmap[i][j] = noise.getValue(i, j)
-                    if (worldmap[i][j] < 0.2) {
-                        worldmap[i][j] = -1f
-                    } else if (worldmap[i][j] < 0.4) {
-                        worldmap[i][j] = 0f
-                    } else if (worldmap[i][j] < 0.6) {
-                        worldmap[i][j] = 1f
-                    } else if (worldmap[i][j] < 0.8) {
-                        worldmap[i][j] = 2f
-                    } else {
-                        worldmap[i][j] = 3f
-                    }
-                }
-            }
-            for (i in 0..99) { //генерируем семена
-                val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
-                if (worldmap[ncell.x][ncell.y] != -1f && worldmap[ncell.x][ncell.y] != 3f) {
-                    ncell.parent_id = i
-                    ncell.world = this
-                    ncell.id = i + 1
-                    ncell.lifetime = 1
-                    cells[i.toString()] = ncell
-                }
-            }
+            generateMap()
         }
         lulz += 1
         if (time) { //цикл дня и ночи
@@ -554,6 +523,53 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         }
         cells = cells1
         repaint() // Перерисовываем экран
+    }
+
+    private fun generateMap() {
+        generateFoodMap()
+        generateHeightMap()
+        generateSeedsMap()
+    }
+
+    private fun generateSeedsMap() {
+        for (i in 0..99) { //генерируем семена
+            val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
+            if (worldmap[ncell.x][ncell.y] != -1f && worldmap[ncell.x][ncell.y] != 3f) {
+                ncell.parent_id = i
+                ncell.world = this
+                ncell.id = i + 1
+                ncell.lifetime = 1
+                cells[i.toString()] = ncell
+            }
+        }
+    }
+
+    private fun generateHeightMap() {
+        for (i in 0 until width) { //генерируем карту высот
+            for (j in 0 until height) {
+                worldmap[i][j] = noise.getValue(i, j)
+                if (worldmap[i][j] < 0.2) {
+                    worldmap[i][j] = -1f
+                } else if (worldmap[i][j] < 0.4) {
+                    worldmap[i][j] = 0f
+                } else if (worldmap[i][j] < 0.6) {
+                    worldmap[i][j] = 1f
+                } else if (worldmap[i][j] < 0.8) {
+                    worldmap[i][j] = 2f
+                } else {
+                    worldmap[i][j] = 3f
+                }
+            }
+        }
+    }
+
+    private fun generateFoodMap() {
+        for (i in 0 until width) { //генерируем карту еды
+            for (j in 0 until height) {
+                foodmap[i][j][0] = rand.nextInt(10)
+                foodmap[i][j][1] = rand.nextInt(10)
+            }
+        }
     }
 
     override fun keyTyped(e: KeyEvent) {}
