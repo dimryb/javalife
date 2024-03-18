@@ -53,12 +53,20 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         paintFood(g, widthMap, heightMap)
         paintCells(g)
         energyRedistribution(g)
+        printInfoPanel(g)
+    }
+
+    private fun printInfoPanel(g: Graphics) {
         g.color = Color.black //время суток
         g.fillRect(1200, 0, 1000, 1200)
+        printTimeInfo(g)
+        paintGenomInfo(g)
+    }
+
+    private fun printTimeInfo(g: Graphics) {
         g.font = Font("Arial", Font.PLAIN, 20)
         g.color = Color.white
         g.drawString("таймер: $lulz освещенность: $daynight", 1210, 30)
-        paintGenomInfo(g)
     }
 
     private fun paintGenomInfo(g: Graphics) {
