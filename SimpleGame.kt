@@ -58,6 +58,10 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         g.font = Font("Arial", Font.PLAIN, 20)
         g.color = Color.white
         g.drawString("таймер: $lulz освещенность: $daynight", 1210, 30)
+        paintGenomInfo(g)
+    }
+
+    private fun paintGenomInfo(g: Graphics) {
         if (selectgenom.size != 0) {
             var y = 0
             for (i in selectgenom) {
