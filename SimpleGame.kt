@@ -26,17 +26,11 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     private var time = false
     var dsize = 0.6f //движение и увеличение дисплея
     var dx = 0
-    var mouseclickx = 0
-    var mouseclicky = 0
     var dy = 0
     var selectgenom = Array(10) { IntArray(6) }
-    var maxid = 101
-    val widthMap = 320
-    val heightMap = 320
+    val widthMap = 512
+    val heightMap = 512
     private val timer: Timer // Таймер для обновления экрана
-    var cells = HashMap<String, Cell>() //список клеток
-    var cellmap = Array(widthMap) { IntArray(heightMap) } //карты
-    private val rand = Random()
     val world = World(widthMap, heightMap)
 
     init {
@@ -123,6 +117,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         val dxPlus2 = (dx + 2).toDouble()
         val dyPlus2 = (dy + 2).toDouble()
 
+        val cells = world.cells.getCells()
         cells.values.forEach { cell1 ->
             cell1.relations
                 .filter { cells.keys.contains(it) }
@@ -140,6 +135,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     }
 
     private fun paintCells(g: Graphics) {
+        val cells = world.cells.getCells()
         for (cell in cells.values) {
             when (display) {
                 0 -> when (cell.type) {
@@ -384,8 +380,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     override fun actionPerformed(e: ActionEvent) {
         if (lulz == 0) {
-            world.generateMap()
-            generateSeedsMap(widthMap, heightMap)
+            world.generateMap(this)
         }
         lulz += 1
         if (time) { //цикл дня и ночи
@@ -405,159 +400,9 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                 time = true
             }
         }
-        for (i in 0 until widthMap) {
-            for (j in 0 until heightMap) {
-                cellmap[i][j] = 0
-            }
-        }
-        for (cell in cells.values) { //заполняем карту клеток
-            cellmap[cell.x][cell.y] = cell.id
-        }
-        val cells1 = cells.clone() as HashMap<String, Cell>
-        for (cell in cells.values) { //рисуем и обрабатываем клетки
-            cell.lifetime -= 1
-            if (cell.type != 3) { //не для семечек
-                cell.energy -= 1f
-                if ((world.food.inMap(cell.x, cell.y, 0) >= 200 || world.food.inMap(
-                        cell.x, cell.y, 1
-                    ) >= 200) && cell.type != 0 && cell.type != 1
-                ) //клетку дамажит плохая земля
-                {
-                    cell.lifetime -= world.food.inMap(cell.x, cell.y, 0) / 10
-                    cell.energy -= 5f
-                }
-                if (cell.type == 4) { //хищник
-                    val neigbors = arrayOf(
-                        intArrayOf(cell.x + 1, cell.y),
-                        intArrayOf(cell.x - 1, cell.y),
-                        intArrayOf(cell.x, cell.y + 1),
-                        intArrayOf(cell.x, cell.y - 1),
-                        intArrayOf(cell.x + 1, cell.y + 1),
-                        intArrayOf(cell.x - 1, cell.y - 1),
-                        intArrayOf(cell.x - 1, cell.y + 1),
-                        intArrayOf(cell.x + 1, cell.y - 1)
-                    )
-                    for (pos in neigbors) {
-                        if (pos[0] == widthMap) {
-                            pos[0] = 0
-                        }
-                        if (pos[0] == -1) {
-                            pos[0] = widthMap - 1
-                        }
-                        if (pos[1] == heightMap) {
-                            pos[1] = 0
-                        }
-                        if (pos[1] == -1) {
-                            pos[1] = heightMap - 1
-                        }
-                        if (cells1.keys.contains(cellmap[pos[0]][pos[1]].toString())) {
-                            val food = cells1[cellmap[pos[0]][pos[1]].toString()]
-                            if (food!!.parent_id != cell.parent_id && !(food.relations.contains(cell.id.toString()) || cell.relations.contains(
-                                    food.id.toString()
-                                )) && food.type != 0
-                            ) { //корни и родственников есть нельзя
-                                cell.energy += food.energy
-                                cells1.remove(cellmap[pos[0]][pos[1]].toString())
-                            }
-                        }
-                    }
-                } else {
-                    world.food.set(cell.x, cell.y, cell.Eat(world.food.inMap(cell.x, cell.y)))  //клетка кушает всегда
-                }
-            } else { //семечки летают
-                val nextpos = cell.Move()
-                if (cellmap[nextpos[0]][nextpos[1]] == 0) {
-                    cellmap[cell.x][cell.y] = 0
-                    cellmap[nextpos[0]][nextpos[1]] = cell.id
-
-                    if (world.heightInMap(cell.x, cell.y) != (world.heightInMap(nextpos[0], nextpos[1]))) {
-                        cell.lifetime /= 2
-                    }
-                    cell.x = nextpos[0]
-                    cell.y = nextpos[1]
-                } else {
-                    cell.lifetime -= 3 //семечка дамажит всех, с кем сталкивается
-                    val jertva = cells1[cellmap[nextpos[0]][nextpos[1]].toString()]
-                    if (jertva != null) {
-                        jertva.lifetime -= 10
-                        for (kid in jertva.relations) {
-                            if (cells1.keys.contains(kid)) {
-                                cells1[kid]!!.fraction += 1
-                            }
-                        }
-                    }
-                }
-            }
-            if (cell.CanGrow() && cell.energy >= 3) { //клетка делится
-                val ncell = cell.Mitoz()
-                if (cellmap[ncell.x][ncell.y] == 0 && (world.heightInMap(cell.x, cell.y) == world.heightInMap(
-                        ncell.x, ncell.y
-                    ) || rand.nextInt(
-                        10
-                    ) == 0) && world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f
-                ) { //переход границы биомов карается
-                    cells1[maxid.toString()] = ncell
-                    cellmap[ncell.x][ncell.y] = ncell.id
-                }
-                if (cell.type == 3) {
-                    cell.lifetime = -100
-                    cell.energy = -100f
-                }
-                //                else if (cellmap[ncell.x][ncell.y]!=0 && cell.relations.size()<= 1){//маленький шанс на сращицание TODO: попробуй эту фигню заменить проверкой на наличие relation между клетками
-//                    if(cells1.keySet().contains(Integer.toString(cellmap[ncell.x][ncell.y]))){
-//                        if(cell.parent_id == cells1.get(Integer.toString(cellmap[ncell.x][ncell.y])).parent_id  && cell.fraction != cells1.get(Integer.toString(cellmap[ncell.x][ncell.y])).fraction){
-//                            cell.relations.add(Integer.toString(cellmap[ncell.x][ncell.y]));
-//                        }
-//                    }
-//                }
-                maxid++
-            }
-            if (cell.energy <= 0 || cell.lifetime <= 0) { //клетка сдохла
-                if (cell.energy > 0) {
-                    world.food.set(
-                        cell.x, cell.y, 0, (world.food.inMap(cell.x, cell.y, 0) + cell.energy / 2).toInt()
-                    )//трупик
-                    world.food.set(cell.x, cell.y, 1, (world.food.inMap(cell.x, cell.y, 1) + cell.energy / 2).toInt())
-                    world.food.set(cell.x, cell.y, 0, min(world.food.inMap(cell.x, cell.y, 0), 255))
-                    world.food.set(cell.x, cell.y, 1, min(world.food.inMap(cell.x, cell.y, 1), 255))
-                }
-                cells1.remove(cell.id.toString())
-            }
-        }
-        cells = cells1
-        for (cell1 in cells1.values) { //перераспределение энергии
-            val dead = ArrayList<String>()
-            for (kid in cell1.relations) {
-                if (cells1.keys.contains(kid)) {
-                    val cell2 = cells1[kid]
-                    val sume = (cell1.energy + cell2!!.energy) / 2
-                    cell1.energy = sume
-                    cell2.energy = sume
-                } else { //больше не обрабатываем мертвецов
-                    dead.add(kid)
-                }
-            }
-            for (kid in dead) {
-                cell1.relations.remove(kid)
-            }
-        }
-        cells = cells1
+        world.cells.cellAction()
         repaint() // Перерисовываем экран
     }
-
-    private fun generateSeedsMap(width: Int, height: Int) {
-        for (i in 0..99) { //генерируем семена
-            val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
-            if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
-                ncell.parent_id = i
-                ncell.world = this
-                ncell.id = i + 1
-                ncell.lifetime = 1
-                cells[i.toString()] = ncell
-            }
-        }
-    }
-
 
     override fun keyTyped(e: KeyEvent) {}
     override fun keyPressed(e: KeyEvent) {
@@ -632,18 +477,6 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     }
 
     override fun keyReleased(e: KeyEvent) {}
-    fun createCell() {
-        val ncell = Cell(mouseclickx, mouseclicky, rand.nextFloat(40f, 50f), 0)
-        ncell.genom = selectgenom
-        if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
-            ncell.parent_id = maxid
-            ncell.world = this
-            ncell.id = maxid
-            ncell.lifetime = 1
-            cells[maxid.toString()] = ncell
-            maxid++
-        }
-    }
 
     companion object {
         @JvmStatic

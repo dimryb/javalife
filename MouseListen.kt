@@ -5,15 +5,17 @@ import kotlin.math.floor
 class MouseListen(var world: SimpleGame) : MouseAdapter() {
     var select: Cell? = null
     override fun mouseClicked(e: MouseEvent) {
-        world.mouseclickx = floor(((e.x / world.dsize - world.dx - 1) / 5).toDouble()).toInt()
-        world.mouseclicky = floor(((e.y / world.dsize - world.dy - 1) / 5).toDouble()).toInt()
+        val mouseClickX = floor(((e.x / world.dsize - world.dx - 1) / 5).toDouble()).toInt()
+        val mouseClickY = floor(((e.y / world.dsize - world.dy - 1) / 5).toDouble()).toInt()
+        val cells = world.world.cells.getCells()
+        val cellMap = world.world.cells.getCellsMap()
         when (e.button) {
-            1 -> if (world.cells.containsKey(world.cellmap[world.mouseclickx][world.mouseclicky].toString())) {
-                select = world.cells[world.cellmap[world.mouseclickx][world.mouseclicky].toString()]
+            1 -> if (cells.containsKey(cellMap[mouseClickX][mouseClickY].toString())) {
+                select = cells[cellMap[mouseClickX][mouseClickY].toString()]
                 world.selectgenom = select!!.genom
             }
 
-            3 -> world.createCell()
+            3 -> world.world.cells.createCell(mouseClickX, mouseClickY, world.selectgenom, world)
         }
     }
 }

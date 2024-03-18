@@ -103,7 +103,7 @@ class Cell(//координаты
         }
         val width = world!!.widthMap
         val height = world!!.heightMap
-        val maxid = world!!.maxid
+        val maxid = world!!.world.cells.maxId()
         val pos = arrayOf(intArrayOf(0, 1), intArrayOf(0, -1), intArrayOf(1, 0), intArrayOf(-1, 0))
         var nx = x + pos[genom[active_gen][3]][0]
         if (nx == -1) {
