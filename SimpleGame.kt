@@ -51,225 +51,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     public override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         paintFood(g, widthMap, heightMap)
-        for (cell in cells.values) {
-            when (display) {
-                0 -> when (cell.type) {
-                    0 -> {
-                        g.color = Color(128, 100, 0)
-                        g.fillRect(
-                            Math.round((cell.x * 5 + 1 + dx) * dsize),
-                            Math.round((cell.y * 5 + 1 + dy) * dsize),
-                            Math.round(3 * dsize),
-                            Math.round(3 * dsize)
-                        )
-                    }
-
-                    1 -> {
-                        g.color = Color(128, 255, 251)
-                        if (cell.direction < 2) {
-                            g.drawRect(
-                                Math.round((cell.x * 5 + 1 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(3 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        } else {
-                            g.drawRect(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + 1 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(3 * dsize)
-                            )
-                        }
-                    }
-
-                    2 -> {
-                        g.color = Color.GREEN
-                        if (cell.direction < 2) {
-                            g.fillRect(
-                                Math.round((cell.x * 5 + 1 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(3 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        } else {
-                            g.fillRect(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + 1 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(3 * dsize)
-                            )
-                        }
-                    }
-
-                    3 -> {
-                        g.color = Color.yellow
-                        g.drawOval(
-                            Math.round((cell.x * 5 + dx) * dsize),
-                            Math.round((cell.y * 5 + dy) * dsize),
-                            Math.round(5 * dsize),
-                            Math.round(5 * dsize)
-                        )
-                    }
-
-                    4 -> {
-                        g.color = Color.red
-                        g.fillOval(
-                            Math.round((cell.x * 5 + dx) * dsize),
-                            Math.round((cell.y * 5 + dy) * dsize),
-                            Math.round(5 * dsize),
-                            Math.round(5 * dsize)
-                        )
-                        g.drawOval(
-                            Math.round((cell.x * 5 + dx) * dsize),
-                            Math.round((cell.y * 5 + dy) * dsize),
-                            Math.round(5 * dsize),
-                            Math.round(5 * dsize)
-                        )
-                    }
-                }
-
-                1 -> {
-                    g.color = Color(
-                        (abs(cell.parent_id.toDouble()) % 256).toInt(),
-                        (abs((cell.parent_id * 4).toDouble()) % 256).toInt(),
-                        (abs((cell.parent_id * 16).toDouble()) % 256).toInt()
-                    )
-                    when (cell.type) {
-                        0 -> g.fillRect(
-                            Math.round((cell.x * 5 + 1 + dx) * dsize),
-                            Math.round((cell.y * 5 + 1 + dy) * dsize),
-                            Math.round(3 * dsize),
-                            Math.round(3 * dsize)
-                        )
-
-                        1 -> if (cell.direction < 2) {
-                            g.drawRect(
-                                Math.round((cell.x * 5 + 1 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(3 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        } else {
-                            g.drawRect(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + 1 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(3 * dsize)
-                            )
-                        }
-
-                        2 -> if (cell.direction < 2) {
-                            g.fillRect(
-                                Math.round((cell.x * 5 + 1 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(3 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        } else {
-                            g.fillRect(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + 1 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(3 * dsize)
-                            )
-                        }
-
-                        3 -> g.drawOval(
-                            Math.round((cell.x * 5 + dx) * dsize),
-                            Math.round((cell.y * 5 + dy) * dsize),
-                            Math.round(5 * dsize),
-                            Math.round(5 * dsize)
-                        )
-
-                        4 -> {
-                            g.fillOval(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                            g.drawOval(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        }
-                    }
-                }
-
-                2 -> {
-                    g.color = Color(
-                        min(255, max(0, cell.color[0])),
-                        min(255, max(0, cell.color[1])),
-                        min(255, max(0, cell.color[2]))
-                    )
-                    when (cell.type) {
-                        0 -> g.fillRect(
-                            Math.round((cell.x * 5 + 1 + dx) * dsize),
-                            Math.round((cell.y * 5 + 1 + dy) * dsize),
-                            Math.round(3 * dsize),
-                            Math.round(3 * dsize)
-                        )
-
-                        1 -> if (cell.direction < 2) {
-                            g.drawRect(
-                                Math.round((cell.x * 5 + 1 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(3 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        } else {
-                            g.drawRect(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + 1 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(3 * dsize)
-                            )
-                        }
-
-                        2 -> if (cell.direction < 2) {
-                            g.fillRect(
-                                Math.round((cell.x * 5 + 1 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(3 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        } else {
-                            g.fillRect(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + 1 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(3 * dsize)
-                            )
-                        }
-
-                        3 -> g.drawOval(
-                            Math.round((cell.x * 5 + dx) * dsize),
-                            Math.round((cell.y * 5 + dy) * dsize),
-                            Math.round(5 * dsize),
-                            Math.round(5 * dsize)
-                        )
-
-                        4 -> {
-                            g.fillOval(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                            g.drawOval(
-                                Math.round((cell.x * 5 + dx) * dsize),
-                                Math.round((cell.y * 5 + dy) * dsize),
-                                Math.round(5 * dsize),
-                                Math.round(5 * dsize)
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        paintCells(g)
         g.color = Color.lightGray
         for (cell1 in cells.values) { //перераспределение энергии
             for (kid in cell1.relations) {
@@ -332,6 +114,228 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                         g.color = Color.white
                     } else {
                         g.drawString(j.toString(), 1210 + x * 20, 30 + y * 30)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun paintCells(g: Graphics) {
+        for (cell in cells.values) {
+            when (display) {
+                0 -> when (cell.type) {
+                    0 -> {
+                        g.color = Color(128, 100, 0)
+                        g.fillRect(
+                            ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                            (3 * dsize).roundToInt(),
+                            (3 * dsize).roundToInt()
+                        )
+                    }
+
+                    1 -> {
+                        g.color = Color(128, 255, 251)
+                        if (cell.direction < 2) {
+                            g.drawRect(
+                                ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (3 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        } else {
+                            g.drawRect(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (3 * dsize).roundToInt()
+                            )
+                        }
+                    }
+
+                    2 -> {
+                        g.color = Color.GREEN
+                        if (cell.direction < 2) {
+                            g.fillRect(
+                                ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (3 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        } else {
+                            g.fillRect(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (3 * dsize).roundToInt()
+                            )
+                        }
+                    }
+
+                    3 -> {
+                        g.color = Color.yellow
+                        g.drawOval(
+                            ((cell.x * 5 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + dy) * dsize).roundToInt(),
+                            (5 * dsize).roundToInt(),
+                            (5 * dsize).roundToInt()
+                        )
+                    }
+
+                    4 -> {
+                        g.color = Color.red
+                        g.fillOval(
+                            ((cell.x * 5 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + dy) * dsize).roundToInt(),
+                            (5 * dsize).roundToInt(),
+                            (5 * dsize).roundToInt()
+                        )
+                        g.drawOval(
+                            ((cell.x * 5 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + dy) * dsize).roundToInt(),
+                            (5 * dsize).roundToInt(),
+                            (5 * dsize).roundToInt()
+                        )
+                    }
+                }
+
+                1 -> {
+                    g.color = Color(
+                        (abs(cell.parent_id.toDouble()) % 256).toInt(),
+                        (abs((cell.parent_id * 4).toDouble()) % 256).toInt(),
+                        (abs((cell.parent_id * 16).toDouble()) % 256).toInt()
+                    )
+                    when (cell.type) {
+                        0 -> g.fillRect(
+                            ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                            (3 * dsize).roundToInt(),
+                            (3 * dsize).roundToInt()
+                        )
+
+                        1 -> if (cell.direction < 2) {
+                            g.drawRect(
+                                ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (3 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        } else {
+                            g.drawRect(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (3 * dsize).roundToInt()
+                            )
+                        }
+
+                        2 -> if (cell.direction < 2) {
+                            g.fillRect(
+                                ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (3 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        } else {
+                            g.fillRect(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (3 * dsize).roundToInt()
+                            )
+                        }
+
+                        3 -> g.drawOval(
+                            ((cell.x * 5 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + dy) * dsize).roundToInt(),
+                            (5 * dsize).roundToInt(),
+                            (5 * dsize).roundToInt()
+                        )
+
+                        4 -> {
+                            g.fillOval(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                            g.drawOval(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        }
+                    }
+                }
+
+                2 -> {
+                    g.color = Color(
+                        min(255, max(0, cell.color[0])),
+                        min(255, max(0, cell.color[1])),
+                        min(255, max(0, cell.color[2]))
+                    )
+                    when (cell.type) {
+                        0 -> g.fillRect(
+                            ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                            (3 * dsize).roundToInt(),
+                            (3 * dsize).roundToInt()
+                        )
+
+                        1 -> if (cell.direction < 2) {
+                            g.drawRect(
+                                ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (3 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        } else {
+                            g.drawRect(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (3 * dsize).roundToInt()
+                            )
+                        }
+
+                        2 -> if (cell.direction < 2) {
+                            g.fillRect(
+                                ((cell.x * 5 + 1 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (3 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        } else {
+                            g.fillRect(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + 1 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (3 * dsize).roundToInt()
+                            )
+                        }
+
+                        3 -> g.drawOval(
+                            ((cell.x * 5 + dx) * dsize).roundToInt(),
+                            ((cell.y * 5 + dy) * dsize).roundToInt(),
+                            (5 * dsize).roundToInt(),
+                            (5 * dsize).roundToInt()
+                        )
+
+                        4 -> {
+                            g.fillOval(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                            g.drawOval(
+                                ((cell.x * 5 + dx) * dsize).roundToInt(),
+                                ((cell.y * 5 + dy) * dsize).roundToInt(),
+                                (5 * dsize).roundToInt(),
+                                (5 * dsize).roundToInt()
+                            )
+                        }
                     }
                 }
             }
