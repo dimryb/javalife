@@ -52,22 +52,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
         super.paintComponent(g)
         paintFood(g, widthMap, heightMap)
         paintCells(g)
-        g.color = Color.lightGray
-        for (cell1 in cells.values) { //перераспределение энергии
-            for (kid in cell1.relations) {
-                if (cells.keys.contains(kid)) {
-                    val cell2 = cells[kid]
-                    if (abs((cell1.x + cell1.y - cell2!!.x - cell2.y).toDouble()) <= 2) {
-                        g.drawLine(
-                            Math.round((cell1.x * 5 + 2 + dx) * dsize),
-                            Math.round((cell1.y * 5 + 2 + dy) * dsize),
-                            Math.round((cell2.x * 5 + 2 + dx) * dsize),
-                            Math.round((cell2.y * 5 + 2 + dy) * dsize)
-                        )
-                    }
-                }
-            }
-        }
+        energyRedistribution(g)
         g.color = Color.black //время суток
         g.fillRect(1200, 0, 1000, 1200)
         g.font = Font("Arial", Font.PLAIN, 20)
@@ -117,6 +102,28 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                     }
                 }
             }
+        }
+    }
+
+    private fun energyRedistribution(g: Graphics) {
+        g.color = Color.lightGray
+        val dSize = dsize.toDouble()
+        val dxPlus2 = (dx + 2).toDouble()
+        val dyPlus2 = (dy + 2).toDouble()
+
+        cells.values.forEach { cell1 ->
+            cell1.relations
+                .filter { cells.keys.contains(it) }
+                .mapNotNull { cells[it] }
+                .filter { abs((cell1.x + cell1.y - it.x - it.y).toDouble()) <= 2 }
+                .forEach { cell2 ->
+                    g.drawLine(
+                        ((cell1.x * 5 + dxPlus2) * dSize).roundToInt(),
+                        ((cell1.y * 5 + dyPlus2) * dSize).roundToInt(),
+                        ((cell2.x * 5 + dxPlus2) * dSize).roundToInt(),
+                        ((cell2.y * 5 + dyPlus2) * dSize).roundToInt()
+                    )
+                }
         }
     }
 
