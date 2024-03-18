@@ -17,6 +17,7 @@ import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 class SimpleGame : JPanel(), ActionListener, KeyListener {
     private var lulz = 0
@@ -49,25 +50,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
     public override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
-        for (i in 0 until widthMap) { //рисуем еду
-            for (j in 0 until heightMap) {
-                var green = 0
-                when (Math.round(world.heightInMap(i, j))) {
-                    -1 -> green = 0
-                    0 -> green = 63
-                    1 -> green = 127
-                    2 -> green = 191
-                    3 -> green = 255
-                }
-                g.color = Color(world.food.inMap(i, j, 0), green, world.food.inMap(i, j, 1))
-                g.fillRect(
-                    Math.round((i * 5 + dx) * dsize),
-                    Math.round((j * 5 + dy) * dsize),
-                    Math.round(5 * dsize),
-                    Math.round(5 * dsize)
-                )
-            }
-        }
+        paintFood(g, widthMap, heightMap)
         for (cell in cells.values) {
             when (display) {
                 0 -> when (cell.type) {
@@ -351,6 +334,27 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                         g.drawString(j.toString(), 1210 + x * 20, 30 + y * 30)
                     }
                 }
+            }
+        }
+    }
+
+    private fun paintFood(g: Graphics, width: Int, height: Int) {
+        for (i in 0 until width) { //рисуем еду
+            for (j in 0 until height) {
+                val green = when ((world.heightInMap(i, j)).roundToInt()) {
+                    -1 -> 0
+                    0 -> 63
+                    1 -> 127
+                    2 -> 191
+                    else -> 255
+                }
+                g.color = Color(world.food.inMap(i, j, 0), green, world.food.inMap(i, j, 1))
+                g.fillRect(
+                    ((i * 5 + dx) * dsize).roundToInt(),
+                    ((j * 5 + dy) * dsize).roundToInt(),
+                    (5 * dsize).roundToInt(),
+                    (5 * dsize).roundToInt()
+                )
             }
         }
     }
