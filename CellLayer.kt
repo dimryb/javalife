@@ -8,20 +8,16 @@ class CellLayer(
     private val world: HeightLayer,
 ) {
     private val cellMap = Array(width) { IntArray(height) }
-    private var cellsList = HashMap<String, Cell>() //список клеток
-    private val rand = Random()
+    private var cellsList = mutableMapOf<String, Cell>() //список клеток
     private var maxId: Int = 101
+    private val rand = Random()
 
     private fun clean() {
-        for (i in 0 until width) {
-            for (j in 0 until height) {
-                cellMap[i][j] = 0
-            }
-        }
+        cellMap.forEach { it.fill(0) }
     }
 
     private fun fillCellMap() {
-        for (cell in cellsList.values) { //заполняем карту клеток
+        cellsList.values.forEach { cell ->
             cellMap[cell.x][cell.y] = cell.id
         }
     }
@@ -29,8 +25,9 @@ class CellLayer(
     fun cellAction() {
         clean()
         fillCellMap()
-        val cells1 = cellsList.clone() as HashMap<String, Cell>
-        for (cell in cellsList.values) { //рисуем и обрабатываем клетки
+        val cells1 = cellsList.toMutableMap()
+
+        cellsList.values.forEach { cell -> //рисуем и обрабатываем клетки
             cell.lifetime -= 1
             if (cell.type != 3) { //не для семечек
                 cell.energy -= 1f
@@ -160,7 +157,7 @@ class CellLayer(
         cellsList = cells1
     }
 
-    fun getCells(): HashMap<String, Cell> = cellsList
+    fun getCells(): Map<String, Cell> = cellsList
     fun getCellsMap(): Array<IntArray> = cellMap
 
     private fun toCell(key: String, cell: Cell) {
@@ -170,7 +167,8 @@ class CellLayer(
     fun maxId() = maxId
 
     fun generateSeeds(context: SimpleGame) {
-        for (i in 0..99) { //генерируем семена
+        (0 until 100).forEach { i ->
+            //генерируем семена
             val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
             if (world.heightInMap(ncell.x, ncell.y) != -1 && world.heightInMap(ncell.x, ncell.y) != 3) {
                 ncell.parentId = i
@@ -182,9 +180,9 @@ class CellLayer(
         }
     }
 
-    fun createCell(x: Int, y: Int, selectgenom: Array<IntArray>, context: SimpleGame) {
+    fun createCell(x: Int, y: Int, selectGenom: Array<IntArray>, context: SimpleGame) {
         val ncell = Cell(x, y, rand.nextFloat(40f, 50f), 0)
-        ncell.genom = selectgenom
+        ncell.genom = selectGenom
         if (world.heightInMap(ncell.x, ncell.y) != -1 && world.heightInMap(ncell.x, ncell.y) != 3) {
             ncell.parentId = maxId
             ncell.world = context
