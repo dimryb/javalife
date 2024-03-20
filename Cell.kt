@@ -1,14 +1,16 @@
 import java.util.*
 
 class Cell(//координаты
-    var x: Int, var y: Int, //энергия
-    var energy: Float, active_gen: Int
+    var x: Int,
+    var y: Int, //энергия
+    var energy: Float,
+    activeGen: Int
 ) {
     //класс клетки
-    var parent_id = 0
-    var prev_cell: String? = null
+    var parentId = 0
+    private var prevCell: String? = null
     var fraction = 0 //индикатор порванности организма
-    var mranges = intArrayOf(5, 10, 10, 4, 1000, 3) //пределы генов
+    private var mranges = intArrayOf(5, 10, 10, 4, 1000, 3) //пределы генов
     var world: SimpleGame? = null
     var direction = 0 //направление роста
     var id = 0
@@ -16,31 +18,29 @@ class Cell(//координаты
     var type = 3 //тип клетки 0-корень 1-антенна 2 - лист, 3 - семачка
     var genom: Array<IntArray> //генокод
     var relations = ArrayList<String>()
-    var active_gen: Int
+    private var activeGen: Int
     private val rand = Random() //ГПСЧ
     var color = intArrayOf(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))
 
     init {
-        val randgenom = Array(10) { IntArray(4) } //генерируем случайный геном
+        val randomGenom = Array(10) { IntArray(4) } //генерируем случайный геном
         for (j in 0..9) {
-            val newgen = intArrayOf(
+            val newGen = intArrayOf(
                 rand.nextInt(mranges[0]), rand.nextInt(mranges[1]), rand.nextInt(mranges[2]), rand.nextInt(
                     mranges[3]
                 ), rand.nextInt(mranges[4]), rand.nextInt(mranges[5])
             )
-            randgenom[j] = newgen
+            randomGenom[j] = newGen
         }
-        genom = randgenom
-        this.active_gen = active_gen
+        genom = randomGenom
+        this.activeGen = activeGen
     }
 
-    fun CanGrow(): Boolean { //проверка возможности делится
+    fun canGrow(): Boolean { //проверка возможности делится
         if (type == 3) {
-            return if (lifetime <= 0) {
-                true
-            } else false
+            return lifetime <= 0
         }
-        when (genom[active_gen][5]) {
+        when (genom[activeGen][5]) {
             0 -> return true
             1 -> if (energy >= 10) {
                 return true
@@ -53,7 +53,7 @@ class Cell(//координаты
         return false
     }
 
-    fun Move(): IntArray { //движение
+    fun move(): IntArray { //движение
         val width = world!!.widthMap
         val height = world!!.heightMap
         return if (rand.nextInt(2) == 0) {
@@ -97,22 +97,22 @@ class Cell(//координаты
         }
     }
 
-    fun Mitoz(): Cell { //Деление
-        if (genom[active_gen][0] == 3 && type == 3) {
-            genom[active_gen][0] = 2
+    fun mitoz(): Cell { //Деление
+        if (genom[activeGen][0] == 3 && type == 3) {
+            genom[activeGen][0] = 2
         }
         val width = world!!.widthMap
         val height = world!!.heightMap
         val maxid = world!!.world.cells.maxId()
         val pos = arrayOf(intArrayOf(0, 1), intArrayOf(0, -1), intArrayOf(1, 0), intArrayOf(-1, 0))
-        var nx = x + pos[genom[active_gen][3]][0]
+        var nx = x + pos[genom[activeGen][3]][0]
         if (nx == -1) {
             nx = width - 1
         }
         if (nx == width) {
             nx = 0
         }
-        var ny = y + pos[genom[active_gen][3]][1]
+        var ny = y + pos[genom[activeGen][3]][1]
         if (ny == -1) {
             ny = height - 1
         }
@@ -124,41 +124,41 @@ class Cell(//координаты
             nx,
             ny,
             energy,
-            genom[active_gen][1]
+            genom[activeGen][1]
         ) //0 - тип потомка, 1 - активный ген потомка, 2 - след. активный ген, 3 - направление роста потомка, 4 - lifetime потомка 5 - условия роста
-        kid.lifetime = genom[active_gen][4]
+        kid.lifetime = genom[activeGen][4]
         for (i in 0..9) {
             kid.genom[i] = genom[i].clone()
         }
-        kid.direction = genom[active_gen][3]
+        kid.direction = genom[activeGen][3]
         kid.world = world
-        kid.type = genom[active_gen][0]
+        kid.type = genom[activeGen][0]
         kid.color = color.clone()
         kid.id = maxid
         if (kid.type != 3) {
-            kid.prev_cell = id.toString()
+            kid.prevCell = id.toString()
             relations.add(maxid.toString())
-            kid.parent_id = parent_id
-            kid.active_gen = 0
+            kid.parentId = parentId
+            kid.activeGen = 0
             if (rand.nextInt(10) == 0) { //мутация
                 val mpos = rand.nextInt(6)
                 kid.genom[rand.nextInt(10)][mpos] = rand.nextInt(mranges[mpos])
                 kid.color[rand.nextInt(3)] += rand.nextInt(-1, 1) * 5
             }
         } else {
-            kid.active_gen = 0
-            kid.parent_id = kid.id
+            kid.activeGen = 0
+            kid.parentId = kid.id
             if (rand.nextInt(2) == 0) { //мутация
                 val mpos = rand.nextInt(6)
                 kid.genom[rand.nextInt(10)][mpos] = rand.nextInt(mranges[mpos])
                 kid.color[rand.nextInt(3)] += rand.nextInt(-1, 2) * 5
             }
         }
-        active_gen = genom[active_gen][2]
+        activeGen = genom[activeGen][2]
         return kid
     }
 
-    fun Eat(pos: IntArray): IntArray { //кушац
+    fun eat(pos: IntArray): IntArray { //кушац
         val height = world!!.world.heightInMap(x, y)
         when (type) {
             0 -> {

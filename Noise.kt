@@ -1,28 +1,25 @@
 import java.util.*
 
-class Noise(var scale: Int, width: Int, height: Int) {
-    var randtable: Array<IntArray>
-    var width: Int
-    var height: Int
-    var generator = Random()
+class Noise(private val scale: Int, width: Int, height: Int) {
+    private val randomTable: Array<IntArray> = Array(width / scale + 2) { IntArray(height / scale + 2) }
+    private val width: Int = width / scale + 1
+    private val height: Int = height / scale + 1
+    private var generator = Random()
     private fun rand(x: Int, y: Int): Int {
-        return randtable[x][y]
+        return randomTable[x][y]
     }
 
     init {
-        randtable = Array(width / scale + 2) { IntArray(height / scale + 2) }
-        this.width = width / scale + 1
-        this.height = height / scale + 1
-        for (i in 0 until this.width) {
+        (0 until this.width).forEach { i ->
             for (j in 0 until this.height) {
-                randtable[i][j] = generator.nextInt(2)
+                randomTable[i][j] = generator.nextInt(2)
             }
         }
         for (i in 0 until this.width) {
-            randtable[i][this.height - 1] = randtable[i][0]
+            randomTable[i][this.height - 1] = randomTable[i][0]
         }
         for (i in 0 until this.height) {
-            randtable[this.width - 1][i] = randtable[0][i]
+            randomTable[this.width - 1][i] = randomTable[0][i]
         }
     }
 

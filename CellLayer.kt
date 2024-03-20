@@ -12,7 +12,7 @@ class CellLayer(
     private val rand = Random()
     private var maxId: Int = 101
 
-    fun clean() {
+    private fun clean() {
         for (i in 0 until width) {
             for (j in 0 until height) {
                 cellMap[i][j] = 0
@@ -20,7 +20,7 @@ class CellLayer(
         }
     }
 
-    fun fillCellMap() {
+    private fun fillCellMap() {
         for (cell in cellsList.values) { //заполняем карту клеток
             cellMap[cell.x][cell.y] = cell.id
         }
@@ -68,7 +68,7 @@ class CellLayer(
                         }
                         if (cells1.keys.contains(cellMap[pos[0]][pos[1]].toString())) {
                             val food = cells1[cellMap[pos[0]][pos[1]].toString()]
-                            if (food!!.parent_id != cell.parent_id && !(food.relations.contains(cell.id.toString()) || cell.relations.contains(
+                            if (food!!.parentId != cell.parentId && !(food.relations.contains(cell.id.toString()) || cell.relations.contains(
                                     food.id.toString()
                                 )) && food.type != 0
                             ) { //корни и родственников есть нельзя
@@ -78,10 +78,10 @@ class CellLayer(
                         }
                     }
                 } else {
-                    foodMap.set(cell.x, cell.y, cell.Eat(foodMap.inMap(cell.x, cell.y)))  //клетка кушает всегда
+                    foodMap.set(cell.x, cell.y, cell.eat(foodMap.inMap(cell.x, cell.y)))  //клетка кушает всегда
                 }
             } else { //семечки летают
-                val nextpos = cell.Move()
+                val nextpos = cell.move()
                 if (cellMap[nextpos[0]][nextpos[1]] == 0) {
                     cellMap[cell.x][cell.y] = 0
                     cellMap[nextpos[0]][nextpos[1]] = cell.id
@@ -104,8 +104,8 @@ class CellLayer(
                     }
                 }
             }
-            if (cell.CanGrow() && cell.energy >= 3) { //клетка делится
-                val ncell = cell.Mitoz()
+            if (cell.canGrow() && cell.energy >= 3) { //клетка делится
+                val ncell = cell.mitoz()
                 if (cellMap[ncell.x][ncell.y] == 0 && (world.heightInMap(cell.x, cell.y) == world.heightInMap(
                         ncell.x, ncell.y
                     ) || rand.nextInt(
@@ -173,7 +173,7 @@ class CellLayer(
         for (i in 0..99) { //генерируем семена
             val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
             if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
-                ncell.parent_id = i
+                ncell.parentId = i
                 ncell.world = context
                 ncell.id = i + 1
                 ncell.lifetime = 1
@@ -186,12 +186,12 @@ class CellLayer(
         val ncell = Cell(x, y, rand.nextFloat(40f, 50f), 0)
         ncell.genom = selectgenom
         if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
-            ncell.parent_id = maxId
+            ncell.parentId = maxId
             ncell.world = context
             ncell.id = maxId
             ncell.lifetime = 1
             toCell(maxId.toString(), ncell)
-            maxId ++
+            maxId++
         }
     }
 }

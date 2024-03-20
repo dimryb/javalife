@@ -8,7 +8,6 @@ import java.awt.event.KeyListener
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
-import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -27,7 +26,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     var dsize = 0.6f //движение и увеличение дисплея
     var dx = 0
     var dy = 0
-    var selectgenom = Array(10) { IntArray(6) }
+    var selectGenom = Array(10) { IntArray(6) }
     val widthMap = 512
     val heightMap = 512
     private val timer: Timer // Таймер для обновления экрана
@@ -64,9 +63,9 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     }
 
     private fun paintGenomInfo(g: Graphics) {
-        if (selectgenom.size != 0) {
+        if (selectGenom.isNotEmpty()) {
             var y = 0
-            for (i in selectgenom) {
+            for (i in selectGenom) {
                 y += 1
                 var x = 0
                 for (j in i) {
@@ -216,9 +215,9 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
 
                 1 -> {
                     g.color = Color(
-                        (abs(cell.parent_id.toDouble()) % 256).toInt(),
-                        (abs((cell.parent_id * 4).toDouble()) % 256).toInt(),
-                        (abs((cell.parent_id * 16).toDouble()) % 256).toInt()
+                        (abs(cell.parentId.toDouble()) % 256).toInt(),
+                        (abs((cell.parentId * 4).toDouble()) % 256).toInt(),
+                        (abs((cell.parentId * 16).toDouble()) % 256).toInt()
                     )
                     when (cell.type) {
                         0 -> g.fillRect(
@@ -433,7 +432,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
             if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                 try {
                     FileWriter(fc.selectedFile).use { fw ->
-                        for (i in selectgenom) {
+                        for (i in selectGenom) {
                             for (j in i) {
                                 fw.write("$j ")
                             }
@@ -459,14 +458,11 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
                             }
                         }
                         val toparse = String(buf).split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                        var x = 0
-                        for (i in toparse) {
-                            var y = 0
-                            for (j in i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-                                selectgenom[x][y] = j.toInt()
-                                y++
+                        for ((x, i) in toparse.withIndex()) {
+                            for ((y, j) in i.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                                .withIndex()) {
+                                selectGenom[x][y] = j.toInt()
                             }
-                            x++
                         }
                     }
                 } catch (e2: IOException) {
