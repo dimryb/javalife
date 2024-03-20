@@ -164,13 +164,13 @@ class Cell(//координаты
             0 -> {
                 if (pos[0] > 0) {
                     pos[0] -= 1
-                    if (height == 0f) {
+                    if (height == 0) {
                         energy += 2.25.toFloat()
                     }
-                    if (height == 1f) {
+                    if (height == 1) {
                         energy += 2f
                     }
-                    if (height == 2f) {
+                    if (height == 2) {
                         energy += 1.75.toFloat()
                     }
                     energy += 2f
@@ -181,13 +181,13 @@ class Cell(//координаты
             1 -> {
                 if (pos[1] > 0) {
                     pos[1] -= 1
-                    if (height == 0f) {
+                    if (height == 0) {
                         energy += 2.25.toFloat()
                     }
-                    if (height == 1f) {
+                    if (height == 1) {
                         energy += 2f
                     }
-                    if (height == 2f) {
+                    if (height == 2) {
                         energy += 1.75.toFloat()
                     }
                 }
@@ -195,13 +195,13 @@ class Cell(//координаты
             }
 
             2 -> {
-                if (height == 0f) {
+                if (height == 0) {
                     energy += (world!!.daynight - 0.1).toFloat()
                 }
-                if (height == 1f) {
+                if (height == 1) {
                     energy += world!!.daynight
                 }
-                if (height == 2f) {
+                if (height == 2) {
                     energy += (world!!.daynight + 0.1).toFloat()
                 }
                 return pos

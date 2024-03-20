@@ -359,7 +359,7 @@ class SimpleGame : JPanel(), ActionListener, KeyListener {
     private fun paintFood(g: Graphics, width: Int, height: Int) {
         for (i in 0 until width) { //рисуем еду
             for (j in 0 until height) {
-                val green = when ((world.heightInMap(i, j)).roundToInt()) {
+                val green = when ((world.heightInMap(i, j))) {
                     -1 -> 0
                     0 -> 63
                     1 -> 127

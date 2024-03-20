@@ -1,5 +1,7 @@
+import kotlin.math.roundToInt
+
 open class HeightLayer(private val width: Int, private val height: Int) {
-    private var worldMap = Array(width) { FloatArray(height) }
+    private var worldMap = Array(width) { IntArray(height) }
     private val noise = PerlinNoise(width, height)
 
     companion object {
@@ -20,14 +22,14 @@ open class HeightLayer(private val width: Int, private val height: Int) {
     data class HeightData(val x: Int, val y: Int, val height: HeightLevel)
 
     fun heightInMap(x: Int, y: Int) = worldMap[x][y]
-    private fun convertNoiseToHeight(value: Float): Float {
+    private fun convertNoiseToHeight(value: Float): Int {
         return when {
             value < LOW_THRESHOLD -> HeightLevel.NEGATIVE
             value < MEDIUM_THRESHOLD -> HeightLevel.ZERO
             value < HIGH_THRESHOLD -> HeightLevel.ONE
             value < VERY_HIGH_THRESHOLD -> HeightLevel.TWO
             else -> HeightLevel.THREE
-        }
+        }.roundToInt()
     }
 
     fun generateHeightMap() {

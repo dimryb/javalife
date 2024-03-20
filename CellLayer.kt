@@ -110,7 +110,7 @@ class CellLayer(
                         ncell.x, ncell.y
                     ) || rand.nextInt(
                         10
-                    ) == 0) && world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f
+                    ) == 0) && world.heightInMap(ncell.x, ncell.y) != -1 && world.heightInMap(ncell.x, ncell.y) != 3
                 ) { //переход границы биомов карается
                     cells1[maxId.toString()] = ncell
                     cellMap[ncell.x][ncell.y] = ncell.id
@@ -172,7 +172,7 @@ class CellLayer(
     fun generateSeeds(context: SimpleGame) {
         for (i in 0..99) { //генерируем семена
             val ncell = Cell(rand.nextInt(width), rand.nextInt(height), rand.nextFloat(40f, 50f), 0)
-            if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
+            if (world.heightInMap(ncell.x, ncell.y) != -1 && world.heightInMap(ncell.x, ncell.y) != 3) {
                 ncell.parentId = i
                 ncell.world = context
                 ncell.id = i + 1
@@ -185,7 +185,7 @@ class CellLayer(
     fun createCell(x: Int, y: Int, selectgenom: Array<IntArray>, context: SimpleGame) {
         val ncell = Cell(x, y, rand.nextFloat(40f, 50f), 0)
         ncell.genom = selectgenom
-        if (world.heightInMap(ncell.x, ncell.y) != -1f && world.heightInMap(ncell.x, ncell.y) != 3f) {
+        if (world.heightInMap(ncell.x, ncell.y) != -1 && world.heightInMap(ncell.x, ncell.y) != 3) {
             ncell.parentId = maxId
             ncell.world = context
             ncell.id = maxId
